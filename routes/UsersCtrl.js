@@ -35,8 +35,10 @@ module.exports = {
                         pass: passCrypt
                      })
                      .then((newUser) => {
-                        return rep.status(201).json({
-                           'userId': newUser.id
+                        //generer le token
+                        return rep.status(200).json({
+                           'userId': newUser.id,
+                           'token': jwtUtils.generateTokenForUser(newUser)
                         })
                      })
                      .catch((err) => {

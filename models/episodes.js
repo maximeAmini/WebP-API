@@ -20,8 +20,7 @@ module.exports = (sequelize, DataTypes) => {
   episodes.init({
     titre: DataTypes.STRING,
     discr: DataTypes.STRING,
-    url: DataTypes.STRING,
-    idForm: DataTypes.INTEGER
+    url: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'episodes',

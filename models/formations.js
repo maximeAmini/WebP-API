@@ -22,8 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     titre: DataTypes.STRING,
     discr: DataTypes.STRING,
     date: DataTypes.DATE,
-    img: DataTypes.STRING,
-    idUser: DataTypes.INTEGER
+    img: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Formations',

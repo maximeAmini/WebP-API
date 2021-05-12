@@ -8,8 +8,8 @@ module.exports = {
         let idF = req.params.idF;
 
         models.episodes.findAll({
-                attributes: ['id', 'titre', 'discr', 'url', 'idForm'],
-                where: {idForm: idF}
+                attributes: ['id', 'titre', 'discr', 'url', 'formId'],
+                where: {formId: idF}
             })
             .then(episodes => {
                 return rep.status(200).json(episodes)
@@ -25,7 +25,7 @@ module.exports = {
         let idE = req.params.idE;
 
         models.episodes.findOne({
-                attributes: ['id', 'titre', 'discr', 'url', 'idForm'],
+                attributes: ['id', 'titre', 'discr', 'url', 'formId'],
                 where: {
                     id: idE
                 }
@@ -44,13 +44,13 @@ module.exports = {
         let titre = req.titre
         let discr = req.discr
         let url = req.url
-        let idForm = 5
+        let FormId = 5
 
         models.episodes.create({
                 titre: titre,
                 discr: discr,
                 url: url,
-                idForm: idForm
+                FormId: FormId
             })
             .then(episodes => {
                 return rep.status(200).json(episodes.id)

@@ -21,6 +21,7 @@ exports.router = (()=>{
 
     //login
     apiRouter.route('/users/login').post(UsersCtrl.login)
+    apiRouter.route('/users/register').post(UsersCtrl.register)
 
 
     return apiRouter
