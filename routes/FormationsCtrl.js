@@ -1,13 +1,23 @@
 //routes
 var models = require('../models')
 var jwtUtils = require('../utils/jwt.utils')
+var sequelize = require('sequelize')
 
 module.exports = {
    //recup toutes les formations
    getF: (req, rep) => {
       models.Formations.findAll({
-            attributes: ['id', 'titre', 'discr', 'img']
-         })
+            attributes: ['id', 'titre', 'discr', 'img', 'userId'],
+            order: [
+               ['id', 'DESC']
+            ],
+            offset: 0,
+            limit: 12,
+            include: [{
+               model: models.Users,
+               attributes: ['userName']
+            }]
+         }, )
          .then(formations => {
             return rep.status(200).json(formations)
          })
@@ -22,10 +32,14 @@ module.exports = {
       let idF = req.params.idF;
 
       models.Formations.findOne({
-            attributes: ['id', 'titre', 'discr', 'img', 'userId', 'createdAt'],
+            attributes: [
+               'id', 'titre', 'discr', 'img', 'userId',
+               [sequelize.fn('date_format', sequelize.col('createdAt'), '%d-%m-%Y'), 'createdAt']
+            ],
             where: {
                id: idF
-            }
+            },
+
          })
          .then(formation => {
             return rep.status(200).json(formation)
@@ -47,11 +61,11 @@ module.exports = {
       let discr = req.body.discr
       let img = "c.jpg"
       //Vérifié les infos
-      if(titre=="" || discr==""){
+      if (titre == "" || discr == "") {
          return rep.status(500).json({
             'type': 1,
             'error': 'Les champs ne doivent pas être vide'
-         })  
+         })
       }
 
       //tester si l'uttilisateur est dispo
@@ -62,23 +76,23 @@ module.exports = {
          })
          .then((user) => {
             console.log(user)
-            if(user){
+            if (user) {
                models.Formations.create({
-                  titre: titre,
-                  discr: discr,
-                  img: img,
-                  UserId: userId
-               })
-               .then(formations => {
-                  return rep.status(200).json(formations.id)
-               })
-               .catch(err => {
-                  return rep.status(500).json({
-                     'type': 2,
-                     'error': 'Formation non crée une erreur c\'est produite'
+                     titre: titre,
+                     discr: discr,
+                     img: img,
+                     UserId: userId
                   })
-               })
-            }else{
+                  .then(formations => {
+                     return rep.status(200).json(formations.id)
+                  })
+                  .catch(err => {
+                     return rep.status(500).json({
+                        'type': 2,
+                        'error': 'Formation non crée une erreur c\'est produite'
+                     })
+                  })
+            } else {
                return rep.status(500).json({
                   'type': 3,
                   'error': 'Utilisateur introuvable'
@@ -96,32 +110,57 @@ module.exports = {
       //vérifier le token
       let headerAuth = req.headers['authorization']
       let userId = jwtUtils.getUserId(headerAuth)
-      if (userId < 0) {
-         rep.status(400).json({
-            'error': "wrong token"
+
+      //recup les données envoyé
+      let idF = req.params.idF;
+      let titre = req.body.titre
+      let discr = req.body.discr
+      let img = "c.jpg"
+      //Vérifié les infos
+      if (titre == "" || discr == "") {
+         return rep.status(500).json({
+            'type': 1,
+            'error': 'Les champs ne doivent pas être vide'
          })
       }
 
-      let titre = req.titre
-      let discr = req.discr
-      let img = "c.png"
-      let idF = req.params.idF;
-
-      models.Formations.update({
-            titre: titre,
-            discr: discr,
-            img: img,
-         }, {
+      //tester si l'uttilisateur est dispo
+      models.Users.findOne({
             where: {
-               id: idF
+               id: userId
             }
          })
-         .then(formations => {
-            return rep.status(200).json(formations.id)
-         })
-         .catch(err => {
+         .then((user) => {
+            console.log(user)
+            if (user) {
+               models.Formations.update({
+                     titre: titre,
+                     discr: discr,
+                     img: img
+                  }, {
+                     where: {
+                        id: idF
+                     }
+                  })
+                  .then(formations => {
+                     return rep.status(200).json(formations.id)
+                  })
+                  .catch(err => {
+                     return rep.status(500).json({
+                        'type': 2,
+                        'error': 'Formation non modifier une erreur c\'est produite'
+                     })
+                  })
+            } else {
+               return rep.status(500).json({
+                  'type': 3,
+                  'error': 'Utilisateur introuvable'
+               })
+            }
+         }).catch(err => {
             return rep.status(500).json({
-               'error': 'formations non modifier' + err
+               'type': 4,
+               'error': 'Utilisateur introuvable'
             })
          })
    },
@@ -138,16 +177,28 @@ module.exports = {
 
       let idF = req.params.idF;
 
-      models.Formations.destroy({
+      models.episodes.destroy({
             where: {
-               id: idF,
-               userId: userId
+               formId: idF
             }
          })
          .then(() => {
-            return rep.status(200).json({
-               'rep': 'supprimé avec succes'
-            })
+            models.Formations.destroy({
+                  where: {
+                     id: idF,
+                     userId: userId
+                  }
+               })
+               .then(() => {
+                  return rep.status(200).json({
+                     'rep': 'supprimé avec succes'
+                  })
+               })
+               .catch(err => {
+                  return rep.status(500).json({
+                     'error': 'non supprimé'
+                  })
+               })
          })
          .catch(err => {
             return rep.status(500).json({
