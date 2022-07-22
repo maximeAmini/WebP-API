@@ -1,11 +1,7 @@
-# API Pour le mémoire de Fin d’Études MASTER ACADÉMIQUE
+# API Pour l'application vueJs Elearning
 
-### - API pour la gestion des données du «Smart Grid»
-API Express js pour la gestion des données envoyée de la smart grille et qui servira de juste milieu entre l'utilisateur et la base de données Cassandra
-
-### - Membres du groupe :
-- AMINI Makhlouf
-- BEN AISSA Tinhinane
+### - API pour la gestion des données
+API Express js pour la gestion des données envoyée qui servira de juste milieu entre l'utilisateur et la base de données
 
 ### - Configuration:
 - Apres avoir telechargé les fichier exécuté : 
